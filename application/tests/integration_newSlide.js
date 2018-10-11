@@ -12,8 +12,7 @@ describe('REST API', () => {
     Object.keys(require.cache).forEach((key) => delete require.cache[key]);
     require('chai').should();
     let hapi = require('hapi');
-    server = new hapi.Server();
-    server.connection({
+    server = hapi.Server({
       host: 'localhost',
       port: 3000
     });
@@ -36,17 +35,15 @@ describe('REST API', () => {
   };
 
   context('when creating a slide it', () => {
-    it('should reply it', (done) => {
-      server.inject(options, (response) => {
-        response.should.be.an('object').and.contain.keys('statusCode','payload');
-        response.statusCode.should.equal(200);
-        response.payload.should.be.a('string');
-        let payload = JSON.parse(response.payload);
-        payload.should.be.an('object').and.contain.keys('title', 'language');
-        payload.title.should.equal('Dummy');
-        payload.language.should.equal('en');
-        done();
-      });
+    it('should reply it', async () => {
+      let response = await server.inject(options);
+      response.should.be.an('object').and.contain.keys('statusCode','payload');
+      response.statusCode.should.equal(200);
+      response.payload.should.be.a('string');
+      let payload = JSON.parse(response.payload);
+      payload.should.be.an('object').and.contain.keys('title', 'language');
+      payload.title.should.equal('Dummy');
+      payload.language.should.equal('en');
     });
   });
 });

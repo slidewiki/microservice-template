@@ -10,12 +10,12 @@ const hapi = require('hapi'),
   co = require('./common');
 
 //Initiate the webserver with standard or given port
-const server = new hapi.Server({ connections: {routes: {validate: { options: {convert : false}}}}});
-
+//const server = new hapi.Server({ connections: {routes: {validate: { options: {convert : false}}}}});
 let port = (!co.isEmpty(process.env.APPLICATION_PORT)) ? process.env.APPLICATION_PORT : 3000;
-server.connection({
+const server = new hapi.Server({
   port: port
 });
+
 let host = (!co.isEmpty(process.env.VIRTUAL_HOST)) ? process.env.VIRTUAL_HOST : server.info.host;
 
 //Export the webserver to be able to use server.log()
@@ -25,7 +25,7 @@ module.exports = server;
 let plugins = [
   require('inert'),
   require('vision'), {
-    register: require('good'),
+    plugin: require('good'),
     options: {
       ops: {
         interval: 1000
@@ -45,7 +45,7 @@ let plugins = [
       }
     }
   }, { //Plugin for swagger API documentation
-    register: require('hapi-swagger'),
+    plugin: require('hapi-swagger'),
     options: {
       host: host,
       info: {
@@ -59,22 +59,23 @@ let plugins = [
 
 const createIndexes = require('./database/createIndexes');
 
-//Register plugins and start webserver
-server.register(plugins, (err) => {
-  if (err) {
-    console.error(err);
-    global.process.exit();
-  } else {
-    // create any indexes before starting the server
-    createIndexes().catch((err) => {
-      console.warn('error creating the indexes on the database collection:');
-      console.warn(err.message);
-    }).then(() => {
-      server.start(() => {
-        server.log('info', 'Server started at ' + server.info.uri);
-        //Register routes
-        require('./routes.js')(server);
-      });
-    });
+async function init() {
+  await server.register(plugins);
+  try {
+    await createIndexes();
+  } catch (err) {
+    console.warn('error creating the indexes on the database collection:');
+    console.warn(err.message);
   }
+  require('./routes.js')(server);
+
+  await server.start();
+  server.log('info', 'Server started at ' + server.info.uri);
+}
+
+process.on('unhandledRejection', (err) => {
+  console.log(err);
+  process.exit(1);
 });
+
+init();

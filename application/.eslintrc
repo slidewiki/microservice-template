@@ -1,7 +1,7 @@
 {
   "extends": "eslint:recommended",
   "parserOptions": {
-    "ecmaVersion": 7,
+    "ecmaVersion": 8,
     "ecmaFeatures": {
       "blockBindings": true,
       "arrowFunctions": true,
@@ -14,6 +14,7 @@
     "es6": true,
     "mocha": true
   },
+  "plugins": ["promise"],
   "rules": {
     "strict": [2, "global"],
     "arrow-spacing": [2, { "before": true, "after": true }],
@@ -41,6 +42,5 @@
     "promise/no-native": "off",
     "promise/no-promise-in-callback": "warn",
     "promise/no-callback-in-promise": "warn"
-  },
-  "plugins": ["promise"]
+  }
 }
