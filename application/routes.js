@@ -13,7 +13,7 @@ module.exports = function(server) {
     method: 'GET',
     path: '/slide/{id}',
     handler: handlers.getSlide,
-    config: {
+    options: {
       validate: {
         params: {
           id: Joi.string().alphanum().lowercase()
@@ -29,7 +29,7 @@ module.exports = function(server) {
     method: 'POST',
     path: '/slide/new',
     handler: handlers.newSlide,
-    config: {
+    options: {
       validate: {
         payload: Joi.object().keys({
           title: Joi.string(),
@@ -52,7 +52,7 @@ module.exports = function(server) {
     method: 'PUT',
     path: '/slide/{id}',
     handler: handlers.replaceSlide,
-    config: {
+    options: {
       validate: {
         params: {
           id: Joi.string().alphanum().lowercase()
